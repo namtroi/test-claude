@@ -35,6 +35,7 @@ export const Diagram: FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRendering, setIsRendering] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [renderKey, setRenderKey] = useState(0);
 
   console.log('🔵 Diagram component render:', {
     hasCurrentAnalysis: !!currentAnalysis,
@@ -42,7 +43,8 @@ export const Diagram: FC = () => {
     mermaidLength: currentAnalysis?.mermaid?.length,
     containerRefExists: !!containerRef.current,
     isRendering,
-    error
+    error,
+    renderKey
   });
 
   useEffect(() => {
@@ -53,15 +55,19 @@ export const Diagram: FC = () => {
       mermaidSyntax: currentAnalysis?.mermaid
     });
 
-    if (!currentAnalysis?.mermaid || !containerRef.current) {
-      console.log('⚠️ Diagram useEffect: Early return -', {
-        noMermaid: !currentAnalysis?.mermaid,
-        noContainer: !containerRef.current
-      });
+    if (!currentAnalysis?.mermaid) {
+      console.log('⚠️ Diagram useEffect: Early return - no mermaid data');
       return;
     }
 
-    const renderDiagram = async () => {
+    // Wait a tick to ensure the ref is attached
+    const timeoutId = setTimeout(async () => {
+      if (!containerRef.current) {
+        console.log('⚠️ Diagram useEffect: Container ref still not ready, forcing re-render');
+        setRenderKey(k => k + 1);
+        return;
+      }
+
       console.log('🟣 Starting mermaid render...');
       setIsRendering(true);
       setError(null);
@@ -109,10 +115,10 @@ export const Diagram: FC = () => {
       } finally {
         setIsRendering(false);
       }
-    };
+    }, 0); // Wait one tick for ref to attach
 
-    renderDiagram();
-  }, [currentAnalysis]); // Changed from [currentAnalysis?.mermaid] to trigger on any analysis change
+    return () => clearTimeout(timeoutId);
+  }, [currentAnalysis, renderKey]); // Include renderKey to force re-render if ref wasn't ready
 
   if (!currentAnalysis) {
     return (
@@ -139,7 +145,7 @@ export const Diagram: FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6" key={currentAnalysis?.mermaid?.substring(0, 50)}>
+    <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Architecture Diagram</h2>
       <div
         ref={containerRef}
