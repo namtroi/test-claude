@@ -14,14 +14,14 @@ export const useAnalyze = () => {
       setError(null)
 
       try {
-        console.log('🚀 Sending analyze request:', request)
         const result = await apiClient.analyze(request)
-        console.log('✅ Analysis result:', result)
+        console.log('🔵 useAnalyze - API result:', result)
+        console.log('🔵 useAnalyze - mermaid:', result.mermaid?.substring(0, 50))
         setAnalysis(result)
+        console.log('🔵 useAnalyze - setAnalysis called')
         addToast('Analysis completed successfully', 'success')
         return result
       } catch (error) {
-        console.error('❌ Analysis error:', error)
         const message = error instanceof Error ? error.message : 'Analysis failed'
         setError(message)
         addToast(message, 'error')

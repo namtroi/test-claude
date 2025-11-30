@@ -14,7 +14,6 @@ describe('useAppStore', () => {
   const mockAnalysis: AnalyzeResponse = {
     files: [],
     graph: [],
-    nodes: [],
     mermaid: 'graph LR',
   }
 

@@ -30,7 +30,7 @@ export function ErrorModal({ isOpen, onClose, error, onRetry }: ErrorModalProps)
           )}
         </div>
 
-        {error.details && (
+        {error.details !== undefined && (
           <details className="mb-4">
             <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
               View Details
