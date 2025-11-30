@@ -5,6 +5,7 @@ node_modules/
 
 # Testing
 coverage/
+.nyc_output/
 
 # Production
 build/
@@ -14,10 +15,20 @@ dist/
 .DS_Store
 *.pem
 .temp/
+temp/
+tmp/
+*.tmp
+Thumbs.db
+*.swp
+*.swo
+.turbo/
 
 # Debug
+*.log
 npm-debug.log*
 yarn-debug.log*
+pnpm-debug.log*
+yarn-error.log*
 ts-debug.log*
 
 # Environment Variables 

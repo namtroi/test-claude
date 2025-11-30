@@ -1,0 +1,99 @@
+import type { FileInput, Language } from '@repo-viz/shared'
+
+const VALID_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'] as const
+
+export const hasFileSystemAccess = (): boolean => {
+  return typeof window !== 'undefined' && 'showDirectoryPicker' in window
+}
+
+const getLanguage = (fileName: string): Language => {
+  if (fileName.endsWith('.ts') || fileName.endsWith('.tsx')) {
+    return 'typescript'
+  }
+  return 'javascript'
+}
+
+const isValidSourceFile = (fileName: string): boolean => {
+  return VALID_EXTENSIONS.some((ext) => fileName.endsWith(ext))
+}
+
+async function readDirectoryRecursive(
+  dirHandle: FileSystemDirectoryHandle,
+  basePath = ''
+): Promise<FileInput[]> {
+  const files: FileInput[] = []
+
+  for await (const entry of dirHandle.values()) {
+    const path = basePath ? `${basePath}/${entry.name}` : entry.name
+
+    if (entry.kind === 'file') {
+      if (isValidSourceFile(entry.name)) {
+        const fileHandle = entry as FileSystemFileHandle
+        const file = await fileHandle.getFile()
+        const content = await file.text()
+
+        files.push({
+          path,
+          content,
+          language: getLanguage(entry.name),
+        })
+      }
+    } else if (entry.kind === 'directory') {
+      const subFiles = await readDirectoryRecursive(
+        entry as FileSystemDirectoryHandle,
+        path
+      )
+      files.push(...subFiles)
+    }
+  }
+
+  return files
+}
+
+export async function selectDirectory(): Promise<FileInput[]> {
+  if (!hasFileSystemAccess()) {
+    throw new Error('File System Access API not supported')
+  }
+
+  try {
+    const dirHandle = await (window as unknown as { showDirectoryPicker: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker()
+    const files = await readDirectoryRecursive(dirHandle)
+
+    if (files.length === 0) {
+      throw new Error('No source files found in directory')
+    }
+
+    return files
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Directory selection cancelled')
+      }
+      throw error
+    }
+    throw new Error('Failed to read directory')
+  }
+}
+
+export async function selectFiles(fileList: FileList): Promise<FileInput[]> {
+  const files: FileInput[] = []
+
+  for (let i = 0; i < fileList.length; i++) {
+    const file = fileList[i]
+
+    if (isValidSourceFile(file.name)) {
+      const content = await file.text()
+      files.push({
+        path: file.webkitRelativePath || file.name,
+        content,
+        language: getLanguage(file.name),
+      })
+    }
+  }
+
+  if (files.length === 0) {
+    throw new Error('No valid source files selected')
+  }
+
+  return files
+}
