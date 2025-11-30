@@ -78,13 +78,13 @@ export class ParserService {
   }
 
   parseProject(files: FileInput[]): {
-    parsedFiles: ParsedFile[];
+    files: ParsedFile[];
     graph: DependencyNode[];
   } {
     const parsedFiles = files.map((file) => this.parseFile(file));
     const graph = this.buildDependencyGraph(parsedFiles, files);
 
-    return { parsedFiles, graph };
+    return { files: parsedFiles, graph };
   }
 
   private buildDependencyGraph(

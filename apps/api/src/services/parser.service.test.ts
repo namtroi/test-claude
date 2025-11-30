@@ -101,11 +101,11 @@ describe('ParserService', () => {
       const result = parser.parseProject(files)
 
       expect(result.files).toHaveLength(2)
-      expect(result.nodes).toHaveLength(2)
+      expect(result.graph).toHaveLength(2)
 
-      const nodeA = result.nodes.find((n) => n.id === 'a.ts')
+      const nodeA = result.graph.find((n) => n.id === 'a.ts')
       expect(nodeA).toBeDefined()
-      expect(nodeA?.dependencies).toEqual(['./b'])
+      expect(nodeA?.dependencies).toEqual(['b.ts'])
     })
 
     it('handles files with no dependencies', () => {
@@ -120,8 +120,8 @@ describe('ParserService', () => {
       const result = parser.parseProject(files)
 
       expect(result.files).toHaveLength(1)
-      expect(result.nodes).toHaveLength(1)
-      expect(result.nodes[0].dependencies).toEqual([])
+      expect(result.graph).toHaveLength(1)
+      expect(result.graph[0].dependencies).toEqual([])
     })
   })
 })

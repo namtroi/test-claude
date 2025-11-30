@@ -11,8 +11,7 @@ describe('DriftService', () => {
       exports: [],
       imports: f.deps.map((d) => ({ source: d, specifiers: [] })),
     })),
-    graph: files.map((f) => ({ path: f.path, dependencies: f.deps })),
-    nodes: files.map((f) => ({ id: f.path, label: f.path, dependencies: f.deps })),
+    graph: files.map((f) => ({ id: f.path, path: f.path, dependencies: f.deps })),
     mermaid: '',
   })
 

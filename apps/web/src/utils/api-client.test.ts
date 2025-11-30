@@ -12,7 +12,6 @@ describe('ApiClient', () => {
       const mockResponse = {
         files: [],
         graph: [],
-        nodes: [],
         mermaid: 'graph LR',
       }
 

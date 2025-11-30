@@ -18,16 +18,21 @@ export async function analyzeRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       logger.info('Analyzing files', { count: request.body.files.length });
 
-      const { parsedFiles, graph } = parserService.parseProject(request.body.files);
+      const { files, graph } = parserService.parseProject(request.body.files);
       const mermaid = mermaidService.generateMermaid(graph);
 
+      logger.info('Generated mermaid syntax:', { 
+        mermaidLength: mermaid.length,
+        mermaidPreview: mermaid.substring(0, 100)
+      });
+
       const response: AnalyzeResponse = {
-        files: parsedFiles,
+        files,
         graph,
         mermaid,
       };
 
-      logger.info('Analysis complete', { filesCount: parsedFiles.length, nodesCount: graph.length });
+      logger.info('Analysis complete', { filesCount: files.length, nodesCount: graph.length, mermaidLength: mermaid.length });
 
       return sendSuccess(reply, response);
     }

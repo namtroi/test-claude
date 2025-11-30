@@ -8,8 +8,8 @@ describe('MermaidService', () => {
   describe('generateMermaid', () => {
     it('generates mermaid syntax for simple graph', () => {
       const graph: DependencyNode[] = [
-        { path: 'src/a.ts', dependencies: ['src/b.ts'] },
-        { path: 'src/b.ts', dependencies: [] },
+        { id: 'src/a.ts', path: 'src/a.ts', dependencies: ['src/b.ts'] },
+        { id: 'src/b.ts', path: 'src/b.ts', dependencies: [] },
       ]
 
       const result = service.generateMermaid(graph)
@@ -22,7 +22,7 @@ describe('MermaidService', () => {
 
     it('handles nodes with no dependencies', () => {
       const graph: DependencyNode[] = [
-        { path: 'standalone.ts', dependencies: [] },
+        { id: 'standalone.ts', path: 'standalone.ts', dependencies: [] },
       ]
 
       const result = service.generateMermaid(graph)
@@ -41,9 +41,9 @@ describe('MermaidService', () => {
 
     it('handles multiple dependencies', () => {
       const graph: DependencyNode[] = [
-        { path: 'a.ts', dependencies: ['b.ts', 'c.ts'] },
-        { path: 'b.ts', dependencies: [] },
-        { path: 'c.ts', dependencies: [] },
+        { id: 'a.ts', path: 'a.ts', dependencies: ['b.ts', 'c.ts'] },
+        { id: 'b.ts', path: 'b.ts', dependencies: [] },
+        { id: 'c.ts', path: 'c.ts', dependencies: [] },
       ]
 
       const result = service.generateMermaid(graph)
@@ -54,7 +54,7 @@ describe('MermaidService', () => {
 
     it('extracts filename from path', () => {
       const graph: DependencyNode[] = [
-        { path: 'src/deep/nested/file.ts', dependencies: [] },
+        { id: 'src/deep/nested/file.ts', path: 'src/deep/nested/file.ts', dependencies: [] },
       ]
 
       const result = service.generateMermaid(graph)
@@ -64,8 +64,8 @@ describe('MermaidService', () => {
 
     it('handles circular dependencies', () => {
       const graph: DependencyNode[] = [
-        { path: 'a.ts', dependencies: ['b.ts'] },
-        { path: 'b.ts', dependencies: ['a.ts'] },
+        { id: 'a.ts', path: 'a.ts', dependencies: ['b.ts'] },
+        { id: 'b.ts', path: 'b.ts', dependencies: ['a.ts'] },
       ]
 
       const result = service.generateMermaid(graph)

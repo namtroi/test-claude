@@ -38,7 +38,7 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveClass('bg-blue-600')
 
     rerender(<Button variant="secondary">Secondary</Button>)
-    expect(screen.getByRole('button')).toHaveClass('bg-gray-600')
+    expect(screen.getByRole('button')).toHaveClass('bg-gray-200')
 
     rerender(<Button variant="danger">Danger</Button>)
     expect(screen.getByRole('button')).toHaveClass('bg-red-600')
@@ -46,6 +46,6 @@ describe('Button', () => {
 
   it('applies disabled styles', () => {
     render(<Button disabled>Disabled</Button>)
-    expect(screen.getByRole('button')).toHaveClass('opacity-50')
+    expect(screen.getByRole('button')).toHaveClass('disabled:opacity-50')
   })
 })

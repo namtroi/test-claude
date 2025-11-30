@@ -17,7 +17,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   previousSnapshot: null,
   driftResult: null,
 
-  setAnalysis: (analysis) => set({ currentAnalysis: analysis }),
+  setAnalysis: (analysis) => {
+    console.log('🟢 appStore.setAnalysis called with:', {
+      hasAnalysis: !!analysis,
+      filesCount: analysis?.files?.length,
+      graphCount: analysis?.graph?.length,
+      hasMermaid: !!analysis?.mermaid,
+      mermaidLength: analysis?.mermaid?.length,
+      mermaidPreview: analysis?.mermaid?.substring(0, 100)
+    });
+    set({ currentAnalysis: analysis });
+  },
 
   setPreviousSnapshot: (snapshot) => set({ previousSnapshot: snapshot }),
 
