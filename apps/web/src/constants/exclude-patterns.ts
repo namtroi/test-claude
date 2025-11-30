@@ -1,0 +1,15 @@
+export const EXCLUDE_PATTERNS = [
+  'node_modules',
+  'dist',
+  'build',
+  '.next',
+  '.git',
+  'coverage',
+  '.turbo',
+  '.nyc_output',
+  '.vercel',
+  '.cache',
+  'out',
+  '.DS_Store',
+  'Thumbs.db',
+]

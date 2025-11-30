@@ -5,11 +5,11 @@
   "description": "Developer tool for visualizing repository structure and detecting architectural drift",
   "scripts": {
     "dev:api": "pnpm --filter @repo-viz/api dev",
-    "dev:web": "pnpm --filter @repo-viz/web dev",
-    "dev": "pnpm run dev:api & pnpm run dev:web",
+    "dev:web": "pnpm --filter @apps/web dev",
+    "dev": "concurrently \"pnpm run dev:api\" \"pnpm run dev:web\"",
     "build:shared": "pnpm --filter @repo-viz/shared build",
     "build:api": "pnpm --filter @repo-viz/api build",
-    "build:web": "pnpm --filter @repo-viz/web build",
+    "build:web": "pnpm --filter @apps/web build",
     "build": "pnpm run build:shared && pnpm run build:api && pnpm run build:web",
     "test": "pnpm -r test",
     "test:watch": "pnpm -r test:watch",
@@ -27,5 +27,8 @@
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

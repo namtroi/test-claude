@@ -5,20 +5,19 @@ import { Button } from './shared/Button';
 import { useAnalyze } from '../hooks/useAnalyze';
 import { useFiles } from '../hooks/useFiles';
 import { useUiStore } from '../stores/uiStore';
+import { selectDirectory, selectFiles, hasFileSystemAccess } from '../utils/file-handler';
 
 export const Upload: FC = () => {
   const { files, addFiles, clearFiles } = useFiles();
   const { analyze } = useAnalyze();
   const { isLoading } = useUiStore();
-  const [supportsFileSystemAccess] = useState(() => 'showDirectoryPicker' in window);
+  const [supportsFileSystemAccess] = useState(() => hasFileSystemAccess());
 
   const handleFolderSelect = async () => {
     if (!supportsFileSystemAccess) return;
 
     try {
-      const dirHandle = await (window as unknown as { showDirectoryPicker: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker();
-      const browserFiles = await readDirectory(dirHandle);
-      const fileInputs = await convertToFileInputs(browserFiles);
+      const fileInputs = await selectDirectory();
       addFiles(fileInputs);
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
@@ -27,47 +26,14 @@ export const Upload: FC = () => {
     }
   };
 
-  const readDirectory = async (dirHandle: FileSystemDirectoryHandle, path = ''): Promise<File[]> => {
-    const browserFiles: File[] = [];
-    const validExtensions = ['.ts', '.tsx', '.js', '.jsx'];
-
-    for await (const entry of dirHandle.values()) {
-      const entryPath = path ? `${path}/${entry.name}` : entry.name;
-
-      if (entry.kind === 'file') {
-        const ext = entry.name.substring(entry.name.lastIndexOf('.'));
-        if (validExtensions.includes(ext)) {
-          const fileHandle = entry as FileSystemFileHandle;
-          const file = await fileHandle.getFile();
-          browserFiles.push(new File([file], entryPath, { type: file.type }));
-        }
-      } else if (entry.kind === 'directory') {
-        const subDirHandle = entry as FileSystemDirectoryHandle;
-        const subFiles = await readDirectory(subDirHandle, entryPath);
-        browserFiles.push(...subFiles);
-      }
-    }
-
-    return browserFiles;
-  };
-
-  const convertToFileInputs = async (browserFiles: File[]) => {
-    const fileInputs = await Promise.all(
-      browserFiles.map(async (file) => {
-        const content = await file.text();
-        const ext = file.name.substring(file.name.lastIndexOf('.'));
-        const language = ext === '.ts' || ext === '.tsx' ? 'typescript' : 'javascript';
-        return { path: file.name, content, language: language as 'typescript' | 'javascript' };
-      })
-    );
-    return fileInputs;
-  };
-
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const browserFiles = Array.from(e.target.files);
-      const fileInputs = await convertToFileInputs(browserFiles);
-      addFiles(fileInputs);
+      try {
+        const fileInputs = await selectFiles(e.target.files);
+        addFiles(fileInputs);
+      } catch (err) {
+        console.error('File selection error:', err);
+      }
     }
   };
 
@@ -93,7 +59,7 @@ export const Upload: FC = () => {
             </Button>
           )}
 
-          <label className="inline-block">
+          <div className="inline-block">
             <Button
               variant="secondary"
               disabled={isLoading}
@@ -109,7 +75,7 @@ export const Upload: FC = () => {
               onChange={handleFileSelect}
               className="hidden"
             />
-          </label>
+          </div>
 
           {files.length > 0 && (
             <Button

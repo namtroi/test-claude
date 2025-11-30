@@ -12,17 +12,22 @@ mermaid.initialize({
 });
 
 export const Diagram: FC = () => {
-  const { currentAnalysis } = useAppStore();
+  const currentAnalysis = useAppStore((state) => state.currentAnalysis);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRendering, setIsRendering] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  console.log('🔄 Diagram render - currentAnalysis:', currentAnalysis);
+
   useEffect(() => {
+    console.log('📊 Diagram useEffect - currentAnalysis:', currentAnalysis);
     if (!currentAnalysis?.mermaid || !containerRef.current) {
+      console.log('⚠️ Diagram - No mermaid data or container');
       return;
     }
 
     const renderDiagram = async () => {
+      console.log('🎨 Starting mermaid render...');
       setIsRendering(true);
       setError(null);
 
@@ -32,11 +37,12 @@ export const Diagram: FC = () => {
           currentAnalysis.mermaid
         );
 
+        console.log('✅ Mermaid rendered successfully');
         if (containerRef.current) {
           containerRef.current.innerHTML = svg;
         }
       } catch (err) {
-        console.error('Mermaid render error:', err);
+        console.error('❌ Mermaid render error:', err);
         setError('Failed to render diagram');
       } finally {
         setIsRendering(false);
@@ -44,7 +50,7 @@ export const Diagram: FC = () => {
     };
 
     renderDiagram();
-  }, [currentAnalysis?.mermaid]);
+  }, [currentAnalysis]);
 
   if (!currentAnalysis) {
     return (

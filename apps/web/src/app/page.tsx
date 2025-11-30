@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Upload } from '../components/Upload';
 import { Diagram } from '../components/Diagram';
@@ -11,7 +11,16 @@ import { useUiStore } from '../stores/uiStore';
 
 export default function Home(): JSX.Element {
   const [activeTab, setActiveTab] = useState<'diagram' | 'drift'>('diagram');
+  const [mounted, setMounted] = useState(false);
   const { error, clearError } = useUiStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
